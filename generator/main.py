@@ -20,18 +20,21 @@ with open("config.yml", "r", encoding="utf-8") as file:
 
 
 def get_labels_for_repo(repo):
+    token = os.environ.get("GITHUB_TOKEN")
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "User-Agent": "Mozilla/5.0 ...",
+    }
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
     response = requests.get(
-        "https://api.github.com/repos/%s/labels" % (repo),
-        headers={
-            "Accept": "application/vnd.github+json",
-            "User-Agent": "Mozilla/5.0 (Macintosh;Intel Mac OS X 10_12_6) AppleWebKit/537.36(KHTML, like Gecko) Chrome/67.0.3396.99Safari/537.36",
-        },
+        f"https://api.github.com/repos/{repo}/labels",
+        headers=headers,
     )
     if response.status_code != 200:
         print("error:", response.status_code)
         raise Exception("Http Error:", response.status_code)
-    labels_list = response.json()
-    return labels_list
+    return response.json()
 
 
 # get issues list according to the labels and state
